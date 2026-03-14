@@ -1,0 +1,1 @@
+export { hospitalApi } from './hospitalApi';
