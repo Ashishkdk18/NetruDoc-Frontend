@@ -11,7 +11,7 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material'
-import { Visibility, VisibilityOff, ArrowForward, Menu } from '@mui/icons-material'
+import { Visibility, VisibilityOff, ArrowForward } from '@mui/icons-material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
