@@ -12,10 +12,14 @@ export default {
         secondary: '#64748B', // Muted Blue/Grey
         accent: '#94A3B8', // Soft Blue
         'soft-blue': '#E2E8F0', // Very light blue for backgrounds
+        'netru-dark': '#2D2A26',
+        'netru-light': '#F5F2ED',
+        'netru-cream': '#EFEAE4',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Helvetica Now Display', 'Inter', 'sans-serif'],
+        display: ['DM Serif Display', 'serif'],
+        body: ['Inter', 'sans-serif'],
       },
       container: {
         center: true,

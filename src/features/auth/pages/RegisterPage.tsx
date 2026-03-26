@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Container,
-  Paper,
   TextField,
   Button,
   Typography,
@@ -13,7 +11,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
   Stepper,
   Step,
   StepLabel,
@@ -29,6 +26,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
+import { motion, AnimatePresence } from 'framer-motion'
+import { UserCheck, ShieldCheck, ArrowRight, ArrowLeft, Upload, X, CheckCircle2 } from 'lucide-react'
 import { RootState, AppDispatch } from '../../../store'
 import { register, verifyRegistrationOTP, resendOTP, clearError } from '../authSlice'
 import { PatientRegistrationData, DoctorRegistrationData, Specialization } from '../models/authModels'
@@ -357,12 +356,6 @@ const RegisterPage: React.FC = () => {
     fetchHospitals()
   }, [formik.values.role])
 
-  const handleRoleChange = (event: SelectChangeEvent) => {
-    const role = event.target.value as 'patient' | 'doctor'
-    formik.setFieldValue('role', role)
-    // Validation schema will be updated automatically via useMemo
-    formik.setFieldTouched('role', false)
-  }
 
   const steps = otpStep
     ? ['Email Verification']
@@ -413,180 +406,185 @@ const RegisterPage: React.FC = () => {
     switch (step) {
       case 0:
         return (
-          <Box>
+          <Box className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              {[
+                { id: 'patient', label: 'Patient', icon: <UserCheck size={20} />, desc: 'Seeking medical care' },
+                { id: 'doctor', label: 'Doctor', icon: <ShieldCheck size={20} />, desc: 'Healthcare provider' }
+              ].map((role) => (
+                <button
+                  key={role.id}
+                  onClick={() => formik.setFieldValue('role', role.id)}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                    formik.values.role === role.id 
+                      ? 'border-netru-dark bg-netru-dark/5' 
+                      : 'border-netru-dark/10 hover:border-netru-dark/20'
+                  }`}
+                >
+                  <div className={`p-2 rounded-lg inline-block mb-3 ${formik.values.role === role.id ? 'bg-netru-dark text-netru-light' : 'bg-netru-dark/5 text-netru-dark'}`}>
+                    {role.icon}
+                  </div>
+                  <h3 className="font-bold text-netru-dark">{role.label}</h3>
+                  <p className="text-xs text-netru-dark/40">{role.desc}</p>
+                </button>
+              ))}
+            </div>
+
             <TextField
-              margin="normal"
-              required
               fullWidth
               id="name"
               label="Full Name"
               name="name"
-              autoComplete="name"
-              autoFocus
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
 
             <TextField
-              margin="normal"
-              required
               fullWidth
               id="email"
               label="Email Address"
               name="email"
-              autoComplete="email"
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.email && Boolean(formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
 
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel id="role-label">I am a</InputLabel>
-              <Select
-                labelId="role-label"
-                id="role"
-                name="role"
-                value={formik.values.role}
-                label="I am a"
-                onChange={handleRoleChange}
-                error={formik.touched.role && Boolean(formik.errors.role)}
-              >
-                <MenuItem value="patient">Patient</MenuItem>
-                <MenuItem value="doctor">Doctor</MenuItem>
-              </Select>
-            </FormControl>
-
             <TextField
-              margin="normal"
               fullWidth
               id="phone"
               label="Phone Number"
               name="phone"
-              autoComplete="tel"
               value={formik.values.phone}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.phone && Boolean(formik.errors.phone)}
               helperText={formik.touched.phone && formik.errors.phone}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              autoComplete="new-password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.password && Boolean(formik.errors.password)}
-              helperText={formik.touched.password && formik.errors.password}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <TextField
+                fullWidth
+                name="password"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.password && Boolean(formik.errors.password)}
+                helperText={formik.touched.password && formik.errors.password}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              autoComplete="new-password"
-              value={formik.values.confirmPassword}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+              <TextField
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+                helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
           </Box>
         )
 
       case 1:
         if (formik.values.role === 'doctor') {
           return (
-            <Box>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="licenseNumber"
-                label="License Number"
-                name="licenseNumber"
-                value={formik.values.licenseNumber}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.licenseNumber && Boolean(formik.errors.licenseNumber)}
-                helperText={formik.touched.licenseNumber && formik.errors.licenseNumber}
-              />
-
-              <FormControl fullWidth margin="normal" required>
-                <InputLabel id="specialization-label">Specialization</InputLabel>
-                <Select
-                  labelId="specialization-label"
-                  id="specialization"
-                  name="specialization"
-                  value={formik.values.specialization}
-                  label="Specialization"
+            <Box className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <TextField
+                  required
+                  fullWidth
+                  id="licenseNumber"
+                  label="License Number"
+                  name="licenseNumber"
+                  value={formik.values.licenseNumber}
                   onChange={formik.handleChange}
-                  error={formik.touched.specialization && Boolean(formik.errors.specialization)}
-                >
-                  {specializations.map((spec) => (
-                    <MenuItem key={spec} value={spec}>
-                      {spec.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.licenseNumber && Boolean(formik.errors.licenseNumber)}
+                  helperText={formik.touched.licenseNumber && formik.errors.licenseNumber}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                />
 
-              <TextField
-                margin="normal"
-                fullWidth
-                id="experience"
-                label="Years of Experience"
-                name="experience"
-                type="number"
-                value={formik.values.experience}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.experience && Boolean(formik.errors.experience)}
-                helperText={formik.touched.experience && formik.errors.experience}
-              />
+                <FormControl fullWidth required>
+                  <InputLabel id="specialization-label">Specialization</InputLabel>
+                  <Select
+                    labelId="specialization-label"
+                    id="specialization"
+                    name="specialization"
+                    value={formik.values.specialization}
+                    label="Specialization"
+                    onChange={formik.handleChange}
+                    sx={{ borderRadius: '12px' }}
+                  >
+                    {specializations.map((spec) => (
+                      <MenuItem key={spec} value={spec}>
+                        {spec.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
 
-              <FormControl fullWidth margin="normal">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <TextField
+                  fullWidth
+                  id="experience"
+                  label="Years of Experience"
+                  name="experience"
+                  type="number"
+                  value={formik.values.experience}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                />
+
+                <TextField
+                  fullWidth
+                  id="consultationFee"
+                  label="Consultation Fee (NPR)"
+                  name="consultationFee"
+                  type="number"
+                  value={formik.values.consultationFee}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                />
+              </div>
+
+              <FormControl fullWidth>
                 <InputLabel id="hospital-label">Hospital/Clinic Name</InputLabel>
                 <Select
                   labelId="hospital-label"
@@ -597,6 +595,7 @@ const RegisterPage: React.FC = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   disabled={hospitalsLoading}
+                  sx={{ borderRadius: '12px' }}
                 >
                   {hospitalsLoading ? (
                     <MenuItem disabled>
@@ -615,200 +614,134 @@ const RegisterPage: React.FC = () => {
                 </Select>
               </FormControl>
 
-              <TextField
-                margin="normal"
-                fullWidth
-                id="consultationFee"
-                label="Consultation Fee (NPR)"
-                name="consultationFee"
-                type="number"
-                value={formik.values.consultationFee}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.consultationFee && Boolean(formik.errors.consultationFee)}
-                helperText={formik.touched.consultationFee && formik.errors.consultationFee}
-              />
+              <div className="pt-4 border-t border-netru-dark/5">
+                <h3 className="text-xl font-display text-netru-dark mb-2">Professional Credentials</h3>
+                <p className="text-sm text-netru-dark/40 mb-6">Upload your professional documents. Max 5MB per file (PDF, JPEG, PNG).</p>
 
-              <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-                Professional Credentials (Optional)
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-                Upload your professional documents. Maximum 5MB per file. Supported formats: PDF, JPEG, PNG.
-              </Typography>
-
-              {/* License Document */}
-              <Box sx={{ mb: 2 }}>
-                <input
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  style={{ display: 'none' }}
-                  id="license-upload"
-                  type="file"
-                  onChange={(e) => handleFileUpload(e, 'license')}
-                />
-                <label htmlFor="license-upload">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    fullWidth
-                    startIcon={<span>📄</span>}
-                    sx={{ justifyContent: 'flex-start', mb: 1 }}
-                  >
-                    Upload License Document
-                  </Button>
-                </label>
-                {credentialFiles.license && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                      {credentialFiles.license.name}
-                    </Typography>
-                    <Button size="small" color="error" onClick={() => removeFile('license')}>
-                      Remove
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Degree Certificate */}
-              <Box sx={{ mb: 2 }}>
-                <input
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  style={{ display: 'none' }}
-                  id="degree-upload"
-                  type="file"
-                  onChange={(e) => handleFileUpload(e, 'degree')}
-                />
-                <label htmlFor="degree-upload">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    fullWidth
-                    startIcon={<span>🎓</span>}
-                    sx={{ justifyContent: 'flex-start', mb: 1 }}
-                  >
-                    Upload Degree Certificate
-                  </Button>
-                </label>
-                {credentialFiles.degree && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                      {credentialFiles.degree.name}
-                    </Typography>
-                    <Button size="small" color="error" onClick={() => removeFile('degree')}>
-                      Remove
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Other Certificates */}
-              <Box sx={{ mb: 2 }}>
-                <input
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  style={{ display: 'none' }}
-                  id="certificate-upload"
-                  type="file"
-                  onChange={(e) => handleFileUpload(e, 'certificate')}
-                />
-                <label htmlFor="certificate-upload">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    fullWidth
-                    startIcon={<span>🏆</span>}
-                    sx={{ justifyContent: 'flex-start', mb: 1 }}
-                  >
-                    Upload Other Certificates
-                  </Button>
-                </label>
-                {credentialFiles.certificate && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                      {credentialFiles.certificate.name}
-                    </Typography>
-                    <Button size="small" color="error" onClick={() => removeFile('certificate')}>
-                      Remove
-                    </Button>
-                  </Box>
-                )}
-              </Box>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { id: 'license', label: 'License Document', icon: <ShieldCheck size={18} /> },
+                    { id: 'degree', label: 'Degree Certificate', icon: <CheckCircle2 size={18} /> },
+                    { id: 'certificate', label: 'Other Certificates', icon: <Upload size={18} /> }
+                  ].map((doc) => (
+                    <div key={doc.id} className="relative">
+                      <input
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        id={`${doc.id}-upload`}
+                        type="file"
+                        onChange={(e) => handleFileUpload(e, doc.id)}
+                      />
+                      <label htmlFor={`${doc.id}-upload`} className="block">
+                        <div className={`flex items-center justify-between p-4 rounded-xl border-2 border-dashed transition-all cursor-pointer ${
+                          credentialFiles[doc.id] 
+                            ? 'border-green-500 bg-green-50' 
+                            : 'border-netru-dark/10 hover:border-netru-dark/20 bg-netru-dark/[0.02]'
+                        }`}>
+                          <div className="flex items-center space-x-3 overflow-hidden">
+                            <span className={credentialFiles[doc.id] ? 'text-green-600' : 'text-netru-dark/40'}>
+                              {doc.icon}
+                            </span>
+                            <span className={`text-sm font-semibold truncate ${credentialFiles[doc.id] ? 'text-green-700' : 'text-netru-dark/60'}`}>
+                              {credentialFiles[doc.id] ? credentialFiles[doc.id]?.name : doc.label}
+                            </span>
+                          </div>
+                          {credentialFiles[doc.id] && (
+                            <button 
+                              onClick={(e) => { e.preventDefault(); removeFile(doc.id); }}
+                              className="p-1 hover:bg-green-100 rounded-full text-green-600 transition-colors"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </Box>
           )
         } else {
           return (
-            <Box>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Date of Birth"
-                  value={formik.values.dateOfBirth}
-                  onChange={(value) => formik.setFieldValue('dateOfBirth', value)}
-                  maxDate={dayjs()}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      margin: 'normal',
-                    },
-                  }}
-                />
-              </LocalizationProvider>
+            <Box className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date of Birth"
+                    value={formik.values.dateOfBirth}
+                    onChange={(value) => formik.setFieldValue('dateOfBirth', value)}
+                    maxDate={dayjs()}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        sx: { '& .MuiOutlinedInput-root': { borderRadius: '12px' } }
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
 
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="gender-label">Gender</InputLabel>
-                <Select
-                  labelId="gender-label"
-                  id="gender"
-                  name="gender"
-                  value={formik.values.gender}
-                  label="Gender"
-                  onChange={formik.handleChange}
-                >
-                  <MenuItem value="male">Male</MenuItem>
-                  <MenuItem value="female">Female</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
-              </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="gender-label">Gender</InputLabel>
+                  <Select
+                    labelId="gender-label"
+                    id="gender"
+                    name="gender"
+                    value={formik.values.gender}
+                    label="Gender"
+                    onChange={formik.handleChange}
+                    sx={{ borderRadius: '12px' }}
+                  >
+                    <MenuItem value="male">Male</MenuItem>
+                    <MenuItem value="female">Female</MenuItem>
+                    <MenuItem value="other">Other</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
 
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-                Emergency Contact (Optional)
-              </Typography>
+              <div className="pt-4 border-t border-netru-dark/5">
+                <h3 className="text-xl font-display text-netru-dark mb-4 flex items-center gap-2">
+                  <ShieldCheck size={20} className="text-netru-dark/30" />
+                  Emergency Contact
+                </h3>
+                
+                <div className="space-y-4">
+                  <TextField
+                    fullWidth
+                    id="emergencyContactName"
+                    label="Emergency Contact Name"
+                    name="emergencyContactName"
+                    value={formik.values.emergencyContactName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                  />
 
-              <TextField
-                margin="normal"
-                fullWidth
-                id="emergencyContactName"
-                label="Emergency Contact Name"
-                name="emergencyContactName"
-                value={formik.values.emergencyContactName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.emergencyContactName && Boolean(formik.errors.emergencyContactName)}
-                helperText={formik.touched.emergencyContactName && formik.errors.emergencyContactName}
-              />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <TextField
+                      fullWidth
+                      id="emergencyContactPhone"
+                      label="Emergency Contact Phone"
+                      name="emergencyContactPhone"
+                      value={formik.values.emergencyContactPhone}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                    />
 
-              <TextField
-                margin="normal"
-                fullWidth
-                id="emergencyContactPhone"
-                label="Emergency Contact Phone"
-                name="emergencyContactPhone"
-                value={formik.values.emergencyContactPhone}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.emergencyContactPhone && Boolean(formik.errors.emergencyContactPhone)}
-                helperText={formik.touched.emergencyContactPhone && formik.errors.emergencyContactPhone}
-              />
-
-              <TextField
-                margin="normal"
-                fullWidth
-                id="emergencyContactRelationship"
-                label="Relationship"
-                name="emergencyContactRelationship"
-                value={formik.values.emergencyContactRelationship}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.emergencyContactRelationship && Boolean(formik.errors.emergencyContactRelationship)}
-                helperText={formik.touched.emergencyContactRelationship && formik.errors.emergencyContactRelationship}
-              />
+                    <TextField
+                      fullWidth
+                      id="emergencyContactRelationship"
+                      label="Relationship"
+                      name="emergencyContactRelationship"
+                      value={formik.values.emergencyContactRelationship}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                    />
+                  </div>
+                </div>
+              </div>
             </Box>
           )
         }
@@ -980,82 +913,245 @@ const RegisterPage: React.FC = () => {
   }
 
   return (
-    <Container component="main" maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography component="h1" variant="h4" align="center" gutterBottom>
-          Join NetruDoc
-        </Typography>
-        <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
-          Create your account to access healthcare services
-        </Typography>
+    <div className="flex flex-col lg:flex-row min-h-screen font-body selection:bg-netru-dark selection:text-netru-light bg-netru-light">
+      {/* Left Panel - Dark Branding */}
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="hidden lg:flex lg:w-[40%] bg-netru-dark text-netru-light p-16 flex-col justify-between sticky top-0 h-screen overflow-hidden"
+      >
+        {/* Abstract shapes */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-netru-light/5 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2" />
+        
+        <div className="space-y-12 relative z-10 transition-all">
+          {/* Logo */}
+          <Link to="/" className="text-2xl font-display tracking-tight hover:opacity-80 transition-opacity">
+            netrudoc<span className="opacity-50">.</span>
+          </Link>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+          <div className="space-y-6 max-w-lg">
+            {/* Badge */}
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-netru-light/20 bg-netru-light/5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[10px] uppercase tracking-widest font-semibold opacity-70">
+                Join the Network
+              </span>
+            </div>
 
-        <Stepper activeStep={otpStep ? 0 : activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+            {/* Headline */}
+            <h1 className="text-5xl lg:text-6xl font-display leading-[1.1] tracking-tight">
+              Start your <br /> health journey <br />
+              <span className="italic">today.</span>
+            </h1>
 
-        <Box
-          component="form"
-          onSubmit={(e) => {
-            e.preventDefault(); // Prevent any accidental form submissions
-          }}
-        >
-          {getStepContent(activeStep)}
+            <p className="text-netru-light/50 text-lg leading-relaxed">
+              Create an account to book consultations, manage your health records, and connect with qualified professionals.
+            </p>
+          </div>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-            {otpStep ? (
-              <>
-                <Button type="button" onClick={() => setOtpStep(false)} disabled={loading}>
-                  Back to Registration
-                </Button>
-                <Button type="button" variant="contained" disabled={loading || otpCode.length !== 6} onClick={() => {
-                  formik.handleSubmit();
-                }}>
-                  {loading ? <CircularProgress size={24} /> : 'Verify & Complete'}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button type="button" disabled={activeStep === 0} onClick={handleBack}>
-                  Back
-                </Button>
-                {activeStep < steps.length - 1 ? (
-                  <Button type="button" variant="contained" onClick={handleNext}>
-                    Next
-                  </Button>
-                ) : (
-                  <Button type="button" variant="contained" disabled={loading} onClick={() => {
-                    if (activeStep === steps.length - 1) {
-                      formik.handleSubmit();
-                    }
-                  }}>
-                    {loading ? <CircularProgress size={24} /> : 'Send Verification Code'}
-                  </Button>
-                )}
-              </>
+          {/* Features */}
+          <div className="space-y-8 pt-8">
+            {[
+              { icon: <UserCheck size={24} />, title: 'Personalized Care', desc: 'Tailored health plans for you' },
+              { icon: <ShieldCheck size={24} />, title: 'Data Security', desc: 'Your privacy is our priority' },
+            ].map((feature, idx) => (
+              <motion.div 
+                key={feature.title} 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + idx * 0.1 }}
+                className="flex items-start space-x-4 group"
+              >
+                <div className="p-3 rounded-xl border border-netru-light/10 bg-netru-light/5 group-hover:bg-netru-light/10 transition-colors">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{feature.title}</h3>
+                  <p className="text-netru-light/40 text-sm italic">{feature.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-12 text-xs text-netru-light/30 border-t border-netru-light/10">
+          © {new Date().getFullYear()} NetruDoc. Smart Healthcare System.
+        </div>
+      </motion.div>
+
+      {/* Right Panel - Multi-step Register Form */}
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full lg:w-[60%] p-8 lg:p-16 flex flex-col items-center overflow-y-auto"
+      >
+        <div className="w-full max-w-2xl">
+          <div className="flex justify-between items-center mb-12">
+            <Link to="/" className="lg:hidden text-2xl font-display text-netru-dark">
+              netrudoc.
+            </Link>
+            <div className="ml-auto flex items-center space-x-2 text-netru-dark/40 uppercase text-[10px] tracking-[0.2em] font-bold">
+              <span>Step {otpStep ? 1 : activeStep + 1} of {steps.length}</span>
+            </div>
+          </div>
+
+          <div className="mb-12">
+            <h2 className="text-4xl lg:text-5xl font-display text-netru-dark mb-4">
+              {otpStep ? 'One last step' : 'Join NetruDoc'}
+            </h2>
+            <p className="text-netru-dark/40 text-lg">
+              {otpStep 
+                ? 'We’ve sent a code to verify your identity.' 
+                : 'Complete the steps below to set up your account.'}
+            </p>
+          </div>
+
+          {!otpStep && (
+            <div className="mb-12 overflow-x-auto pb-4">
+              <Stepper 
+                activeStep={activeStep} 
+                alternativeLabel={false}
+                connector={null}
+                sx={{ 
+                  '& .MuiStep-root': { flex: 1, px: 1 },
+                  '& .MuiStepLabel-root': { cursor: 'pointer' },
+                  '& .MuiStepLabel-iconContainer': { display: 'none' },
+                  '& .MuiStepLabel-label': { 
+                    textAlign: 'left', 
+                    fontSize: '0.65rem', 
+                    fontWeight: 800, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.15em',
+                    mt: '0px !important'
+                  },
+                  '& .MuiStepLabel-label.Mui-active': { color: '#2D2A26' },
+                  '& .MuiStepLabel-label.Mui-disabled': { color: 'rgba(0,0,0,0.1)' },
+                }}
+              >
+                {steps.map((label, index) => (
+                  <Step key={label} completed={activeStep > index}>
+                    <div className="space-y-2">
+                      <div className={`h-1 rounded-full transition-all duration-500 ${activeStep >= index ? 'bg-netru-dark w-full' : 'bg-netru-dark/5 w-4'}`} />
+                      <StepLabel>{label}</StepLabel>
+                    </div>
+                  </Step>
+                ))}
+              </Stepper>
+            </div>
+          )}
+
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <Alert severity="error" sx={{ mb: 4, borderRadius: 3 }}>{error}</Alert>
+              </motion.div>
             )}
-          </Box>
+            {otpError && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <Alert severity="error" sx={{ mb: 4, borderRadius: 3 }}>{otpError}</Alert>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Typography variant="body2">
-              Already have an account?{' '}
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                Sign in here
-              </Link>
-            </Typography>
+          <Box
+            component="form"
+            onSubmit={(e) => e.preventDefault()}
+            className="space-y-8"
+          >
+            <motion.div
+              key={activeStep + (otpStep ? 'otp' : 'reg')}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white p-6 lg:p-10 rounded-3xl border border-netru-dark/5 shadow-sm"
+            >
+              {getStepContent(activeStep)}
+            </motion.div>
+
+            <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 pt-6">
+              {otpStep ? (
+                <>
+                  <button 
+                    type="button" 
+                    onClick={() => setOtpStep(false)} 
+                    disabled={loading}
+                    className="text-netru-dark/60 hover:text-netru-dark font-semibold text-sm transition-colors"
+                  >
+                    Back to Registration
+                  </button>
+                  <Button 
+                    type="button" 
+                    variant="contained" 
+                    disabled={loading || otpCode.length !== 6} 
+                    onClick={() => formik.handleSubmit()}
+                    sx={{ 
+                      bgcolor: '#2D2A26', borderRadius: '12px', height: '56px', px: 4,
+                      '&:hover': { bgcolor: '#1a1816' }, textTransform: 'none', fontSize: '1rem', fontWeight: 600
+                    }}
+                  >
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Complete'}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    type="button" 
+                    disabled={activeStep === 0} 
+                    onClick={handleBack}
+                    className={`flex items-center space-x-2 font-semibold text-sm transition-colors ${activeStep === 0 ? 'opacity-0 pointer-events-none' : 'text-netru-dark opacity-100 hover:opacity-60'}`}
+                  >
+                    <ArrowLeft size={16} />
+                    <span>Previous Step</span>
+                  </button>
+
+                  <div className="flex items-center space-x-4 w-full sm:w-auto">
+                    {activeStep < steps.length - 1 ? (
+                      <Button 
+                        type="button" 
+                        variant="contained" 
+                        onClick={handleNext}
+                        endIcon={<ArrowRight size={18} />}
+                        sx={{ 
+                          bgcolor: '#2D2A26', borderRadius: '12px', height: '56px', flex: 1, px: 4, minWidth: '160px',
+                          '&:hover': { bgcolor: '#1a1816' }, textTransform: 'none', fontSize: '1rem', fontWeight: 600
+                        }}
+                      >
+                        Next Step
+                      </Button>
+                    ) : (
+                      <Button 
+                        type="button" 
+                        variant="contained" 
+                        disabled={loading} 
+                        onClick={() => formik.handleSubmit()}
+                        sx={{ 
+                          bgcolor: '#2D2A26', borderRadius: '12px', height: '56px', flex: 1, px: 4, minWidth: '180px',
+                          '&:hover': { bgcolor: '#1a1816' }, textTransform: 'none', fontSize: '1rem', fontWeight: 600
+                        }}
+                      >
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Account'}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="text-center pt-8">
+              <p className="text-netru-dark/40 text-sm">
+                Already have an account?{' '}
+                <Link to="/login" className="text-netru-dark font-bold hover:underline underline-offset-4 transition-all">
+                  Sign in here
+                </Link>
+              </p>
+            </div>
           </Box>
-        </Box>
-      </Paper>
-    </Container>
+        </div>
+      </motion.div>
+    </div>
   )
 }
 

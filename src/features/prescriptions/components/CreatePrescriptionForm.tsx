@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Dialog,
@@ -14,6 +14,8 @@ import {
   Divider,
   Stack,
   Alert,
+  Autocomplete,
+  CircularProgress,
 } from '@mui/material'
 import {
   Add as AddIcon,
@@ -27,6 +29,14 @@ import { Dayjs } from 'dayjs'
 import { AppDispatch, RootState } from '../../../store/index'
 import { createPrescription, clearError } from '../prescriptionSlice'
 import { Medication, Diagnosis } from '../api/prescriptionApi'
+import userApi from '../../users/api/userApi'
+
+interface PatientOption {
+  _id: string
+  name: string
+  email: string
+  phone?: string
+}
 
 interface CreatePrescriptionFormProps {
   open: boolean
@@ -49,6 +59,11 @@ const CreatePrescriptionForm: React.FC<CreatePrescriptionFormProps> = ({
   const { creating, error } = useSelector((state: RootState) => state.prescriptions)
 
   const [patientId, setPatientId] = useState(initialPatientId || '')
+  const [selectedPatient, setSelectedPatient] = useState<PatientOption | null>(null)
+  const [patientOptions, setPatientOptions] = useState<PatientOption[]>([])
+  const [patientSearchLoading, setPatientSearchLoading] = useState(false)
+  const [patientInputValue, setPatientInputValue] = useState('')
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [medications, setMedications] = useState<Medication[]>([
     { name: '', dosage: '', frequency: '', duration: '', instructions: '' },
   ])
@@ -56,6 +71,43 @@ const CreatePrescriptionForm: React.FC<CreatePrescriptionFormProps> = ({
   const [notes, setNotes] = useState('')
   const [followUpDate, setFollowUpDate] = useState<Dayjs | null>(null)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+
+  // Fetch patients when search input changes (debounced)
+  const fetchPatients = useCallback(async (search: string) => {
+    try {
+      setPatientSearchLoading(true)
+      const response = await userApi.getPatients({ search, limit: 10 })
+      const patients = (response as any)?.data?.items || (response as any)?.data || []
+      setPatientOptions(
+        patients.map((p: any) => ({
+          _id: p._id,
+          name: p.name,
+          email: p.email,
+          phone: p.phone,
+        }))
+      )
+    } catch (err) {
+      console.error('Failed to fetch patients:', err)
+      setPatientOptions([])
+    } finally {
+      setPatientSearchLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!initialPatientId && patientInputValue.length >= 1) {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = setTimeout(() => {
+        fetchPatients(patientInputValue)
+      }, 300)
+    } else if (patientInputValue.length === 0) {
+      // Load initial list when field is focused but empty
+      fetchPatients('')
+    }
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    }
+  }, [patientInputValue, initialPatientId, fetchPatients])
 
   const handleAddMedication = () => {
     setMedications([...medications, { name: '', dosage: '', frequency: '', duration: '', instructions: '' }])
@@ -149,6 +201,9 @@ const CreatePrescriptionForm: React.FC<CreatePrescriptionFormProps> = ({
 
   const handleClose = () => {
     setPatientId(initialPatientId || '')
+    setSelectedPatient(null)
+    setPatientOptions([])
+    setPatientInputValue('')
     setMedications([{ name: '', dosage: '', frequency: '', duration: '', instructions: '' }])
     setDiagnoses([{ condition: '', icdCode: '', notes: '' }])
     setNotes('')
@@ -178,14 +233,59 @@ const CreatePrescriptionForm: React.FC<CreatePrescriptionFormProps> = ({
         <Stack spacing={3} sx={{ mt: 1 }}>
           {/* Patient Selection */}
           {!initialPatientId && (
-            <TextField
-              label="Patient ID"
-              value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
-              required
-              fullWidth
-              error={!!formErrors.patientId}
-              helperText={formErrors.patientId}
+            <Autocomplete
+              options={patientOptions}
+              getOptionLabel={(option) => `${option.name} (${option.email})`}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
+              value={selectedPatient}
+              onChange={(_event, newValue) => {
+                setSelectedPatient(newValue)
+                setPatientId(newValue?._id || '')
+                if (newValue) {
+                  setFormErrors((prev) => {
+                    const { patientId: _, ...rest } = prev
+                    return rest
+                  })
+                }
+              }}
+              inputValue={patientInputValue}
+              onInputChange={(_event, newInputValue) => {
+                setPatientInputValue(newInputValue)
+              }}
+              loading={patientSearchLoading}
+              filterOptions={(x) => x}
+              noOptionsText={patientInputValue ? 'No patients found' : 'Start typing to search...'}
+              renderOption={(props, option) => (
+                <li {...props} key={option._id}>
+                  <Box>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                      {option.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {option.email}{option.phone ? ` • ${option.phone}` : ''}
+                    </Typography>
+                  </Box>
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search Patient"
+                  placeholder="Type patient name, email, or phone..."
+                  required
+                  error={!!formErrors.patientId}
+                  helperText={formErrors.patientId}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {patientSearchLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
             />
           )}
 

@@ -228,7 +228,7 @@ const AdminAnalyticsPage: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                   <XAxis dataKey="status" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                  <Tooltip formatter={(value: any) => [value ?? 0, 'Count']} />
+                  <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Count']} />
                   <Bar dataKey="count" name="Count" radius={[4, 4, 0, 0]}>
                     {byStatus.map((entry, index) => (
                       <Cell key={index} fill={STATUS_COLORS[entry.status] || '#757575'} />
@@ -258,7 +258,7 @@ const AdminAnalyticsPage: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                   <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
                   <YAxis type="category" dataKey="name" width={72} tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(value: any) => [value ?? 0, 'Appointments']} />
+                  <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Appointments']} />
                   <Bar dataKey="count" name="Appointments" fill="#6366f1" radius={[0, 4, 4, 0]} />
                 </BarChart>
               )}
@@ -284,7 +284,7 @@ const AdminAnalyticsPage: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                  <Tooltip formatter={(value: any) => [value ?? 0, 'Appointments']} />
+                  <Tooltip formatter={(value: number | undefined) => [value ?? 0, 'Appointments']} />
                   <Legend />
                   <Line
                     type="monotone"
@@ -316,7 +316,7 @@ const AdminAnalyticsPage: React.FC = () => {
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v >= 1e6 ? `${v / 1e6}M` : v >= 1e3 ? `${v / 1e3}K` : v)} />
                   <Tooltip
-                    formatter={(value: any, name: any) => [
+                    formatter={(value: number | undefined, name?: string) => [
                       name === 'NPR' ? `Rs. ${(value ?? 0).toLocaleString()}` : `$ ${(value ?? 0).toLocaleString()}`,
                       name ?? '',
                     ]}
@@ -359,7 +359,7 @@ const AdminAnalyticsPage: React.FC = () => {
                       <Cell key={index} fill={STATUS_COLORS[entry.status] || '#757575'} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any, _name: any, props: any) => [value ?? 0, props?.payload?.status ?? '']} />
+                  <Tooltip formatter={(value: number | undefined, _name?: string, props?: { payload?: { status?: string } }) => [value ?? 0, props?.payload?.status ?? '']} />
                 </PieChart>
               )}
             </ResponsiveContainer>
@@ -391,7 +391,7 @@ const AdminAnalyticsPage: React.FC = () => {
                       <Cell key={index} fill={['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f5f3ff', '#faf5ff'][index % 8]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any, _name: any, props: any) => [value ?? 0, props?.payload?.specialization || '—']} />
+                  <Tooltip formatter={(value: number | undefined, _name?: string, props?: { payload?: TopSpecialty }) => [value ?? 0, props?.payload?.specialization || '—']} />
                 </PieChart>
               )}
             </ResponsiveContainer>
