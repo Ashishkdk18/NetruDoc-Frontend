@@ -194,8 +194,13 @@ const ForgotPasswordPage: React.FC = () => {
                 sx={{ mt: 3, mb: 2, py: 1.5 }}
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Send Verification Code'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Send Verification Code'}
               </Button>
+              {loading && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+                  Connecting to server... this may take up to 60 seconds.
+                </Typography>
+              )}
             </>
           )}
 
