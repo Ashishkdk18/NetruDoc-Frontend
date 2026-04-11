@@ -604,7 +604,7 @@ const RegisterPage: React.FC = () => {
                     </MenuItem>
                   ) : Array.isArray(hospitals) && hospitals.length > 0 ? (
                     hospitals.map((hospital, index) => (
-                      <MenuItem key={hospital._id || hospital.id || `h-${index}`} value={hospital.name}>
+                      <MenuItem key={hospital.id || `hospital-${index}`} value={hospital.name}>
                         {hospital.name} - {hospital.address.city}, {hospital.address.state}
                       </MenuItem>
                     ))
