@@ -2,18 +2,17 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { ApiResponse, ApiError, ApiConfig } from '../types/api'
 
 // Default API configuration
+// Timeout is 60s to handle Render free-tier cold starts (server sleeps after inactivity)
 const defaultConfig: ApiConfig = {
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-    timeout: 10000,
+    timeout: 60000,
     headers: {
         'Content-Type': 'application/json',
     },
 }
 
 // Log current API configuration for debugging
-if (import.meta.env.DEV) {
-    console.log('API Client configured with baseURL:', defaultConfig.baseURL)
-}
+console.log('API Client configured with baseURL:', defaultConfig.baseURL)
 
 class ApiClient {
     private client: AxiosInstance
@@ -59,10 +58,10 @@ class ApiClient {
                     const apiError = error.response.data as ApiError
                     return Promise.reject(apiError)
                 } else if (error.request) {
-                    // Network error
+                    // Network error (also triggered by CORS block or Render cold start timeout)
                     const networkError: ApiError = {
                         status: 'error',
-                        message: 'Network error - please check your connection',
+                        message: 'Server is starting up, please wait a moment and try again.',
                         data: {}
                     }
                     return Promise.reject(networkError)
