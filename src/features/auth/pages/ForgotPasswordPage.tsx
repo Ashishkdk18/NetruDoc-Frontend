@@ -208,13 +208,15 @@ const ForgotPasswordPage: React.FC = () => {
                 id="otp"
                 label="Verification Code"
                 name="otp"
-                value={otpCode}
+                value={formik.values.otp}
                 onChange={(e) => {
-                  setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
-                  setOtpError('')
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  formik.setFieldValue('otp', val);
+                  setOtpCode(val);
+                  setOtpError('');
                 }}
-                error={!!otpError}
-                helperText={otpError}
+                error={formik.touched.otp && Boolean(formik.errors.otp) || !!otpError}
+                helperText={(formik.touched.otp && formik.errors.otp) || otpError}
                 inputProps={{ maxLength: 6 }}
                 autoFocus
               />
@@ -242,9 +244,9 @@ const ForgotPasswordPage: React.FC = () => {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 2, mb: 2, py: 1.5 }}
-                disabled={loading || otpCode.length !== 6}
+                disabled={loading || formik.values.otp.length !== 6}
               >
-                {loading ? <CircularProgress size={24} /> : 'Verify Code'}
+                {loading ? <CircularProgress size={24} /> : 'Verify & Set New Password'}
               </Button>
             </>
           )}
