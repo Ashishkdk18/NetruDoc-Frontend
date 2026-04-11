@@ -10,6 +10,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  success: false,
+  message: null,
 }
 
 
@@ -463,11 +465,7 @@ const authSlice = createSlice({
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.loading = false
         state.success = true
-        state.message = action.payload.message
-        // Capture OTP for auto-fill helper (Good for testing!)
-        if (action.payload.otp) {
-          state.user = { ...state.user, tempOTP: action.payload.otp } as any
-        }
+        state.message = action.payload // action.payload is the string message
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false
@@ -481,7 +479,7 @@ const authSlice = createSlice({
       .addCase(resetPassword.fulfilled, (state, action) => {
         state.loading = false
         state.success = true
-        state.message = action.payload.message
+        state.message = action.payload // action.payload is the string message
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false

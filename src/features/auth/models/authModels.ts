@@ -204,6 +204,8 @@ export interface AuthState {
   isAuthenticated: boolean
   loading: boolean
   error: string | null
+  success?: boolean
+  message?: string | null
   otpRequired?: boolean
   otpEmail?: string | null
 }
