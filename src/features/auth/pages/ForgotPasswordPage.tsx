@@ -14,7 +14,7 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState, AppDispatch } from '../../../store'
-import { forgotPassword, resetPassword, clearError } from '../authSlice'
+import { forgotPassword, resetPassword, resetAuthStatus } from '../authSlice'
 
 const ForgotPasswordPage: React.FC = () => {
   const navigate = useNavigate()
@@ -127,7 +127,7 @@ const ForgotPasswordPage: React.FC = () => {
   }
 
   useEffect(() => {
-    dispatch(clearError())
+    dispatch(resetAuthStatus())
   }, [dispatch])
 
   return (

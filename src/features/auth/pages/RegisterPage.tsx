@@ -29,7 +29,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UserCheck, ShieldCheck, ArrowRight, ArrowLeft, Upload, X, CheckCircle2 } from 'lucide-react'
 import { RootState, AppDispatch } from '../../../store'
-import { register, verifyRegistrationOTP, resendOTP, clearError } from '../authSlice'
+import { register, verifyRegistrationOTP, resendOTP, clearError, resetAuthStatus } from '../authSlice'
 import { PatientRegistrationData, DoctorRegistrationData, Specialization } from '../models/authModels'
 import { hospitalApi } from '../../hospitals/api'
 import { Hospital } from '../../hospitals/models/hospitalModels'
@@ -126,7 +126,7 @@ const RegisterPage: React.FC = () => {
   // Handle successful registration (switch to OTP step) - moved after formik declaration
 
   useEffect(() => {
-    dispatch(clearError())
+    dispatch(resetAuthStatus())
   }, [dispatch])
 
   // Patient validation schema

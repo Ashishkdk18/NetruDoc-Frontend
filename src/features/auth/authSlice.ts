@@ -290,6 +290,10 @@ const authSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload
     },
+    resetAuthStatus: (state) => {
+      state.loading = false
+      state.error = null
+    },
   },
   extraReducers: (builder) => {
     builder
