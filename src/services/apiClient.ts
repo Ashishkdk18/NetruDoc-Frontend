@@ -58,21 +58,24 @@ class ApiClient {
                     const apiError = error.response.data as ApiError
                     return Promise.reject(apiError)
                 } else if (error.request) {
-                    // Network error (also triggered by CORS block or Render cold start timeout)
+                    // Network error (Server is down or starting up)
+                    const isColdStart = error.code === 'ECONNABORTED' || error.message.includes('timeout');
+                    
                     const networkError: ApiError = {
                         status: 'error',
-                        message: 'Server is starting up, please wait a moment and try again.',
+                        message: isColdStart 
+                            ? 'Server is waking up (Render Free Tier). Please wait 30 seconds...' 
+                            : 'Server is currently starting up after deployment. This usually takes 2-3 minutes. Please wait.',
                         data: {}
-                    }
-                    return Promise.reject(networkError)
+                    };
+                    return Promise.reject(networkError);
                 } else {
                     // Something else happened
-                    const unknownError: ApiError = {
+                    return Promise.reject({
                         status: 'error',
                         message: error.message || 'An unknown error occurred',
                         data: {}
-                    }
-                    return Promise.reject(unknownError)
+                    });
                 }
             }
         )
